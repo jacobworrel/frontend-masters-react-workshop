@@ -1,14 +1,14 @@
 import * as React from 'react';
+import { useMachine } from '@xstate/react';
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { ProgressCircle } from '../ProgressCircle';
 
-// import { useMachine } from '@xstate/react';
-import { timerMachine } from './timerMachine';
+// Import the timer machine and its initial state:
+import { timerMachine, timerMachineConfig } from './timerMachine';
 
 export const Timer = () => {
-  const [state, send] = [{}, () => {}];
+  const [state, send] = useMachine(timerMachine, timerMachineConfig.initial);
 
   const { duration, elapsed, interval } = {
     duration: 60,
@@ -19,7 +19,7 @@ export const Timer = () => {
   return (
     <div
       className="timer"
-      data-state={state.value} // Hint!
+      data-state={state.value}
       style={{
         // @ts-ignore
         '--duration': duration,
@@ -28,7 +28,7 @@ export const Timer = () => {
       }}
     >
       <header>
-        <h1>Exercise 01</h1>
+        <h1>Exercise 00</h1>
       </header>
       <ProgressCircle />
       <div className="display">
@@ -36,45 +36,39 @@ export const Timer = () => {
         <div
           className="elapsed"
           onClick={() => {
-            // ...
+            send({ type: 'TOGGLE' });
           }}
         >
           {Math.ceil(duration - elapsed)}
         </div>
         <div className="controls">
-          {state === 'paused' && (
-            <button
-              onClick={() => {
-                // ...
-              }}
-            >
-              Reset
-            </button>
-          )}
+          <button
+            onClick={() => {
+              send({ type: 'RESET' });
+            }}
+          >
+            Reset
+          </button>
         </div>
       </div>
       <div className="actions">
-        {state === 'running' && (
-          <button
-            onClick={() => {
-              // ...
-            }}
-            title="Pause timer"
-          >
-            <FontAwesomeIcon icon={faPause} />
-          </button>
-        )}
+        {state.value === 'running' ? <button
+          onClick={() => {
+            send({ type: 'TOGGLE' });
+          }}
+          title="Pause timer"
+        >
+          <FontAwesomeIcon icon={faPause} />
+        </button> : null}
 
-        {(state === 'paused' || state === 'idle') && (
-          <button
-            onClick={() => {
-              // ...
-            }}
-            title="Start timer"
-          >
-            <FontAwesomeIcon icon={faPlay} />
-          </button>
-        )}
+        {state.value === 'paused' || state.value === 'idle' ? <button
+          onClick={() => {
+            send({ type: 'TOGGLE' });
+          }}
+          title="Start timer"
+        >
+          <FontAwesomeIcon icon={faPlay} />
+        </button> : null}
       </div>
     </div>
   );
