@@ -3,7 +3,9 @@ import { createMachine, assign } from 'xstate';
 const ticker = (context, event) => (callback) => {
   // This is the callback service creator.
   // Add the implementation details here.
-  // ...
+  const intervalId = setInterval(() => callback('TICK'), context.interval * 1000);
+
+  return () => clearInterval(intervalId);
 };
 
 const timerExpired = (ctx) => ctx.elapsed >= ctx.duration;
@@ -31,6 +33,10 @@ export const timerMachine = createMachine({
     running: {
       // Invoke the callback service here.
       // ...
+      invoke: {
+        id: 'ticker',
+        src: ticker
+      },
 
       initial: 'normal',
       states: {
