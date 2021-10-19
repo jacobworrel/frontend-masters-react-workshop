@@ -43,16 +43,21 @@ export const timerAppMachine = createMachine({
   on: {
     ADD: {
       // Uncomment this once you've added the spawn() code:
-      // target: '.timer',
+      target: '.timer',
       actions: assign((ctx, event) => {
         // Spawn a new timerMachine here (using createTimerMachine)
         // and append this timer to context.timers
         // ...
+        const timer = spawn(createTimerMachine(event.duration));
+
+        return {
+          timers: ctx.timers.concat(timer),
+          currentTimer: ctx.timers.length,
+        };
 
         // Change the below line to return the updated context:
         // - `context.timers` should contain the appended spawned timer
         // - `context.currentTimer` should be the index of that spawned timer
-        return ctx;
       }),
     },
     CREATE: 'new',
